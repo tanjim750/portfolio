@@ -1,8 +1,70 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.views import View
+from django.views.decorators.csrf import csrf_exempt
+from django.conf import settings
+
+from django.core.mail import EmailMultiAlternatives
 
 from .models import *
+
+@csrf_exempt
+def visitor_view(request):
+    if request.method == 'POST':
+        visitor_id = request.POST.get('visitor_id', None)
+        visited_url = request.POST.get('visited_url', None)
+
+        if visitor_id and visited_url:
+            visitor = Visitor.objects.filter(visitor_id=visitor_id)
+
+            if visitor.exists():
+                visitor = visitor.first()
+                visitor.total_visit += 1
+                visitor.save()
+                
+                get_visited_url = VisitedUrl.objects.filter(url=visited_url)
+                if get_visited_url.exists():
+                    get_visited_url = get_visited_url.first()
+                    get_visited_url.total_visit += 1
+                    get_visited_url.save()
+                else:
+                    VisitedUrl.objects.create(
+                        visitor=visitor,
+                        url = visited_url
+                        )
+                
+                context = {
+                    "success": True,
+                    "action": "Already Exists",
+                }
+            else:
+                obj = Visitor.objects.create(
+                    visitor_id=visitor_id
+                    )
+                
+                VisitedUrl.objects.create(
+                    visitor=obj,
+                    url = visited_url
+                    )
+
+                context = {
+                    "success": True,
+                    "action": "New Visitor Added",
+                }
+        else:
+            context = {
+                    "success": False,
+                    "action": "Please provide a valid visitor id and the url",
+            }
+    else:
+        context = {
+            "success": False,
+            "error": "Invalid request",
+        }
+
+    return JsonResponse(context,safe=True)
+            
+
 
 class SideBarView(View):
     def __init__(self):
@@ -12,6 +74,7 @@ class SideBarView(View):
         name = self.obj.name
         copyright = self.obj.copyright_text
         profile = self.obj.profile
+        logo = self.obj.logo
         menus = self.obj.menus.all()
         social_links = self.obj.social_links.all()
 
@@ -24,7 +87,8 @@ class SideBarView(View):
 
         context = {
             "name":name,"copyright":copyright,
-            "profile":profile.url,"menus":menus,"social":social
+            "profile":profile.url,"menus":menus,"social":social,
+            "logo": logo.url if logo else None
             }
         return JsonResponse(context, safe=True)
 
@@ -34,6 +98,7 @@ class HomeView(View):
         self.obj = Home.objects.first()
     
     def get(self,requests):
+        page_title = self.obj.page_title
         title = self.obj.title
         subtitle = self.obj.subtitle
         image = self.obj.image.url
@@ -52,7 +117,7 @@ class HomeView(View):
         context = {
             "title": title,"subtitle": subtitle,
             "image": image,"buttons":buttons,
-            "contact": contact,
+            "contact": contact,"page_title": page_title
         }
         return JsonResponse(context, safe=True)
     
@@ -62,6 +127,7 @@ class AboutView(View):
         self.obj = About.objects.first()
     
     def get(self,requests):
+        page_title = self.obj.page_title
         title = self.obj.title
         description = self.obj.description
         btn_text = self.obj.btn_text
@@ -75,6 +141,177 @@ class AboutView(View):
         context = {
             "title": title,"description": description,"btn_text": btn_text,
             "btn_link": btn_link, "skills": skills,
-            "contact": contact,
+            "contact": contact,"page_title": page_title
         }
         return JsonResponse(context, safe=True)
+    
+class ServiceView(View):
+    def __init__(self):
+        self.video = IntroVideo.objects.first()
+        self.obj = Service.objects.all()
+    
+    def get(self, request):
+        services = list(self.obj.values())
+        domain_url = request.build_absolute_uri('/')[:-1]
+
+        video_title = self.video.title
+        thumbnail = self.video.thumbnail.url
+        play_btn = self.video.play_btn.url
+        video = self.video.video
+        video_url = self.video.video_link
+
+        context = {
+            "services": services,
+            "video_title": video_title, "thumbnail": thumbnail,
+            "play_btn": play_btn,"video_url": video_url if video_url else domain_url+video.url
+        
+        }
+        return JsonResponse(context,safe=True)
+
+class ProjectView(View):
+    def __init__(self):
+        self.obj = Project.objects.all()
+        self.tstm = Testimonial.objects.all()
+    
+    def get(self,request):
+        domain_url = request.build_absolute_uri('/')[:-1]
+        projects = []
+
+        for project in self.obj:
+            dict = {}
+            dict['id'] = project.id
+            dict['title'] = project.title
+            dict["page_title"] = project.page_title
+            dict['short_text'] = project.short_text
+            dict['description'] = project.description
+            video = project.video
+            video_url = project.video_url
+            dict['video'] = domain_url+video.url if video else video_url
+
+            projects.append(dict)
+        
+        testimonial = list(self.tstm.values())
+
+        context = {
+            "projects": projects,"testimonials": testimonial if testimonial else None,
+        }
+        return JsonResponse(context, safe=True)
+    
+class BlogView(View):
+    def __init__(self):
+        self.obj = Blog.objects.all().order_by("-date")
+    
+    def get(self, request):
+        blogs = list(self.obj.values())
+
+        context = {
+            "blogs":blogs
+        }
+        return JsonResponse(context, safe=True)
+   
+
+class ContactView(View):
+    def __init__(self):
+        self.obj = Contact.objects.first()
+    
+    def get(self, request):
+        page_title = self.obj.page_title
+        text = self.obj.text
+        btn_text = self.obj.btn_text
+        contact = self.obj.contact.all()
+        location = self.obj.location
+
+        contact = list(contact.values())
+
+        context = {
+            "text": text, "btn_text": btn_text, "page_title":page_title,
+            "contact": contact, "location": location
+        }
+        return JsonResponse(context, safe=True)
+    
+    @csrf_exempt
+    def post(self, request):
+        print(request.POST)
+        return JsonResponse({"success": "message successfully received"})
+
+def send_contact_mail(name,user_email,subject,message):
+    # send mail that user made a leave request
+    email_template = """
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>[subject]</title>
+        <style>
+            .applicationBox{
+            width: 100%;
+            height: 700px;
+            background-color: aliceblue;
+            font-size: 20px;
+            padding: 10px;
+            border: none;
+            outline: none;
+        }
+        .applicationBox:focus{
+            border: none;
+        }
+        </style>
+    </head>
+    <body>
+        <textarea name="application" class="applicationBox" readonly>
+        ##############################
+        from email - [email]
+        name: [name]
+        ###############################
+        
+        [message]
+        </textarea>
+    </body>
+    </html>
+    """.replace("[subject]",subject).replace("[message]",message).replace("[name]",name).replace("[email]",user_email)
+    email_to = "abubokortanjim@gmail.com"
+    email_from = settings.EMAIL_HOST_USER
+    recipient_list = [email_to, ]
+    email = EmailMultiAlternatives(
+            subject,
+            message,
+            email_from,
+            recipient_list
+    )
+    email.attach_alternative(email_template, 'text/html')
+    response = email.send()
+    if response:
+        return {'success': True}
+    else:
+        return {'success': False}
+
+@csrf_exempt
+def contact_view(request):
+
+    if request.method == "POST":
+        name = request.POST.get('name', None)
+        email = request.POST.get('email', None)
+        subject = request.POST.get('subject', None)
+        message = request.POST.get('message', None)
+
+        response = send_contact_mail(name, email, subject, message)
+        return JsonResponse(response,safe=True)
+
+    elif request.method == "GET":
+        obj = Contact.objects.first()
+
+        page_title = obj.page_title
+        text = obj.text
+        btn_text = obj.btn_text
+        contact = obj.contact.all()
+        location = obj.location
+
+        contact = list(contact.values())
+
+        context = {
+            "text":text,"btn_text":btn_text,"page_title":page_title,
+            "contacts":contact,"location":location
+        }
+        return JsonResponse(context,safe=True)

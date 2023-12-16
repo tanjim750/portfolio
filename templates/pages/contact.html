@@ -48,7 +48,7 @@
         <div class="inner">
         <div class="wrapper">
         <div class="avatar">
-        <div class="image profileImg" data-img-url="img/about/2.jpg"></div>
+        <div class="image profileImg" ></div>
         </div>
         <div class="menu_list">
         <ul class="anchor_nav menus">
@@ -82,7 +82,7 @@
         <div class="author">
         <div class="image">
         <img src="img/thumbs/1-1.jpg" alt />
-        <div class="main profileImg" data-img-url="img/about/2.png"></div>
+        <div class="main profileImg" ></div>
         </div>
         <div class="name">
         <h3><span class="name">Tanjim Abubokor<span class="back">Tanjim Abubokor</span></span></h3>
@@ -126,11 +126,11 @@
 <span>- Let's Connect</span>
 <h3>Get in touch</h3>
 </div>
-<div class="text">
+<div class="text" id="contact-text">
 <p>I'm currently avaliable to take on new projects, so feel free to send me a message about anything that you want to run past me. You can contact anytime at 24/7</p>
 </div>
 <div class="info">
-<ul>
+<ul id="contact-holder">
 <li>
 <a href="tel:+77 022 444 05 05">+77 022 444 05 05</a>
 </li>
@@ -145,9 +145,14 @@
 </div>
 <div class="right">
 <div class="fields">
-<form action="https://marketifythemes.net/" method="post" class="contact_form" id="contact_form">
+<form action="" method="post" class="contact_form" id="contact_form">
 <div class="returnmessage" data-success="Your message has been received, We will contact you soon."></div>
 <div class="empty_notice"><span>Please Fill Required Fields</span></div>
+<div class="email_notice"><span>Please Provide a valid email address</span></div>
+<div class="loading"><span>Please wait a second.</span></div>
+<div class="error_notice"><span>Soryy, Something went wrong please try again.</span></div>
+
+
 <div class="first">
 <ul>
 <li>
@@ -156,13 +161,16 @@
 <li>
 <input id="email" type="text" placeholder="Your email" autocomplete="off">
 </li>
+<li>
+<input id="subject" type="text" placeholder="Your Subject" autocomplete="off">
+</li>
 </ul>
 </div>
 <div class="last">
 <textarea id="message" placeholder="Write something..."></textarea>
 </div>
 <div class="elisc_tm_button">
-<a id="send_message" href="">Submit now</a>
+<a id="send_message" class="mail_submit_btn" >Submit now</a>
 </div>
 
 </form>
@@ -190,9 +198,12 @@
 
 <script data-cfasync="false" src="../../cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="js/jquery.js"></script>
 <!--[if lt IE 10]> <script type="text/javascript" src="js/ie8.js"></script> <![endif]-->
+<script src="js/get_data.js"></script>
+<script>
+    Contact()
+</script>
 <script src="js/plugins.js"></script>
 <script src="js/init.js"></script>
-<script src="js/get_data.js"></script>
 
 </body>
 </html>

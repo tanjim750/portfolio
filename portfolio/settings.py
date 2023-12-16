@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-7u#m8bwaqs65+ghs)eoy605#&=71kc^5u^_vw*qapv!%mt1*c4
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["tanjim-abubokor.github.io","97a7-106-0-53-101.ngrok-free.app","127.0.0.1"]
 
 
 # Application definition
@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'corsheaders',
-    'app'
+    'app',
+    'ckeditor',
 ]
 
 MIDDLEWARE = [
@@ -53,8 +54,13 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    "http://127.0.0.1:5500",  # Add your frontend URL
+    "https://tanjim-abubokor.github.io","http://127.0.0.1:5500"  # Add your frontend URL
 ]
+X_FRAME_OPTIONS = 'ALLOW-FROM http://127.0.0.1:5500'
+CSRF_TRUSTED_ORIGINS = ['https://tanjim-abubokor.github.io',"http://127.0.0.1:5500"]
+CKEDITOR_UPLOAD_PATH = 'uploads/'
+CKEDITOR_JQUERY_URL = '//cdn.ckeditor.com/ckeditor5/40.2.0/classic/ckeditor.js'
+
 
 ROOT_URLCONF = 'portfolio.urls'
 
@@ -133,3 +139,12 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# email sending credentials
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'quinnirene701@gmail.com'
+EMAIL_HOST_PASSWORD = 'rrcjnzutcgbpuxqv'

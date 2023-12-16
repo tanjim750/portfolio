@@ -26,5 +26,11 @@ urlpatterns = [
     path("get-sidebar",views.SideBarView.as_view(), name="sidebar"),
     path('get-home', views.HomeView.as_view(), name="home"),
     path('get-about', views.AboutView.as_view(), name="about"),
+    path('get-service', views.ServiceView.as_view(), name="service"),
+    path('get-project', views.ProjectView.as_view(), name="project"),
+    path('get-blog', views.BlogView.as_view(), name="blog"),
+    path('get-contact', views.contact_view, name="contact"),
+    path('add-visitor', views.visitor_view, name="visitor"),
+
 ] + static(settings.MEDIA_URL,
                           document_root=settings.MEDIA_ROOT)

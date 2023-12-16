@@ -28,7 +28,7 @@ jQuery(document).ready(function() {
 
 function elisc_tm_modalbox() {
     "use strict";
-    jQuery('.elisc_tm_all_wrap').prepend('<div class="elisc_tm_modalbox"><div class="box_inner"><div class="close"><a href="#"><i class="icon-cancel"></i></a></div><div class="description_wrap"></div></div></div>');
+    jQuery('.elisc_tm_all_wrap').prepend('<div class="elisc_tm_modalbox"><div class="box_inner"><div class="close"><a href="#"><img src="img/svg/close.svg"></a></div><div class="description_wrap"></div></div></div>');
 }
 
 function elisc_tm_movingbox() {
@@ -332,32 +332,58 @@ function elisc_tm_data_images() {
 function elisc_tm_contact_form() {
     "use strict";
     jQuery(".contact_form #send_message").on('click', function() {
+        var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        var loading_msg = document.querySelector(".contact_form div.loading");
+
         var name = jQuery(".contact_form #name").val();
         var email = jQuery(".contact_form #email").val();
         var message = jQuery(".contact_form #message").val();
         var subject = jQuery(".contact_form #subject").val();
         var success = jQuery(".contact_form .returnmessage").data('success');
         jQuery(".contact_form .returnmessage").empty();
-        if (name === '' || email === '' || message === '') {
+        if (name === '' || email === '' || message === '' || subject === '') {
             jQuery('div.empty_notice').slideDown(500).delay(2000).slideUp(500);
         } else {
-            jQuery.post("modal/contact.php", {
-                ajax_name: name,
-                ajax_email: email,
-                ajax_message: message,
-                ajax_subject: subject
-            }, function(data) {
-                jQuery(".contact_form .returnmessage").append(data);
-                if (jQuery(".contact_form .returnmessage span.contact_error").length) {
-                    jQuery(".contact_form .returnmessage").slideDown(500).delay(2000).slideUp(500);
-                } else {
-                    jQuery(".contact_form .returnmessage").append("<span class='contact_success'>" + success + "</span>");
-                    jQuery(".contact_form .returnmessage").slideDown(500).delay(4000).slideUp(500);
-                }
-                if (data === "") {
-                    jQuery("#contact_form")[0].reset();
-                }
-            });
+            if(emailRegex.test(email)){
+                //display loading message
+                loading_msg.style.display = 'block';
+
+                // reset The form
+                jQuery("#contact_form")[0].reset();
+
+                // send request to server
+                jQuery.post("http://127.0.0.1:8000/get-contact", {
+                    name: name,
+                    email: email,
+                    message: message,
+                    subject: subject
+                }, function(data) {
+                    if(data.success){
+                        //hide loading message
+                        loading_msg.style.display = 'none';
+
+                        jQuery(".contact_form .returnmessage").append(data);
+                        if (jQuery(".contact_form .returnmessage span.contact_error").length) {
+                            jQuery(".contact_form .returnmessage").slideDown(500).delay(2000).slideUp(500);
+                        } else {
+                            jQuery(".contact_form .returnmessage").append("<span class='contact_success'>" + success + "</span>");
+                            jQuery(".contact_form .returnmessage").slideDown(500).delay(4000).slideUp(500);
+                        }
+                        
+                        
+                    }else{
+                        //hide loading message
+                        loading_msg.style.display = 'none';
+                        
+                        jQuery(".contact_form .error_notice").slideDown(500).delay(3000).slideUp(500);
+                    }
+                    
+                    // console.log(data);
+                });
+            }else{
+                jQuery('div.email_notice').slideDown(500).delay(2000).slideUp(500);
+            }
         }
         return false;
     });
