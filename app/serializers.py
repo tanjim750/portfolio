@@ -15,6 +15,7 @@ class MenuSerializer(serializers.ModelSerializer):
         fields = ["id", "name", "link"]
 
 class SocialLinkSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(source="platform")          # expose "platform" as "name"
     logo = serializers.SerializerMethodField()
 
     class Meta:
@@ -30,10 +31,12 @@ class SideBarSerializer(serializers.ModelSerializer):
     profile = serializers.SerializerMethodField()
     logo = serializers.SerializerMethodField()
     textLogo = serializers.SerializerMethodField()
+    copyright = serializers.CharField(source="copyright_text", read_only=True)
 
     class Meta:
         model = SideBar
-        fields = ["name", "textLogo", "profile", "logo", "copyright_text", "menus", "social"]
+        # return friendly JSON keys while sourcing from actual model fields
+        fields = ["name", "textLogo", "profile", "logo", "copyright", "menus", "social"]
 
     def get_profile(self, obj):
         return obj.profile.url if obj.profile else None
