@@ -37,6 +37,8 @@ class Contact(models.Model):
     default_loc = "https://www.google.com/maps?q=Bangladesh+Agricultural+Research+Institute/@23.9916906,90.4033221,15z/data=!3m1!4b1?entry=ttu=&output=embed"
     
     page_title = models.CharField(max_length=100000,default="Tanjim Abubokor")
+    title = models.CharField(max_length=100000,default="- Let's Connect")
+    heading = models.CharField(max_length=100000,default="Get in touch")
     text = models.TextField()
     contact = models.ManyToManyField(ContactInfo, related_name="Contact_info")
     btn_text = models.CharField(max_length=300)
