@@ -31,6 +31,8 @@ urlpatterns = [
     path('get-blog', views.BlogView.as_view(), name="blog"),
     path('get-contact', views.contact_view, name="contact"),
     path('add-visitor', views.visitor_view, name="visitor"),
+    path('get-blog-details', views.blog_details, name="blog-details"),
+    path('get-project-details', views.project_details, name="project-details"),
 
 ] + static(settings.MEDIA_URL,
                           document_root=settings.MEDIA_ROOT)

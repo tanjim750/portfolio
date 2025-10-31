@@ -187,8 +187,10 @@ class Project(models.Model):
     short_text = models.TextField()
     video = models.FileField(upload_to="projects", blank=True, null=True)
     video_url = models.TextField(blank=True, null=True)
+    image = models.FileField(upload_to="images", blank=True ,null=True)
     description = RichTextField()
-
+    date = models.DateField(auto_now_add=True, null=True)
+    
     def __str__(self):
         return self.title
 

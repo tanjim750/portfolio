@@ -184,9 +184,9 @@ class ProjectView(View):
             dict["page_title"] = project.page_title
             dict['short_text'] = project.short_text
             dict['description'] = project.description
-            video = project.video
-            video_url = project.video_url
-            dict['video'] = domain_url+video.url if video else video_url
+            dict['video'] = domain_url+project.video.url if project.video else project.video_url
+            dict['image'] = project.image.url if project.image else None
+            dict['date'] = project.date
 
             projects.append(dict)
         
@@ -196,7 +196,53 @@ class ProjectView(View):
             "projects": projects,"testimonials": testimonial if testimonial else None,
         }
         return JsonResponse(context, safe=True)
-    
+
+@csrf_exempt
+def project_details(request):
+    domain_url = request.build_absolute_uri('/')[:-1]
+
+    if request.method == 'POST':
+        project = request.POST.get('project', None)
+        if project is not None:
+            split_project = project.split('@') # ['12 unique examples of portfolio websites12', '34', '2023-12-10'] ==> [title,id,date]
+            project_id = split_project[1] 
+
+            get_project = Project.objects.filter(id=project_id)
+            if get_project.exists():
+                get_project = get_project.first()
+                project_dict = {}
+                project_dict['id'] = get_project.id
+                project_dict['title'] = get_project.title
+                project_dict["page_title"] = get_project.page_title
+                project_dict['short_text'] = get_project.short_text
+                project_dict['description'] = get_project.description
+                project_dict['video'] = domain_url+get_project.video.url if get_project.video else get_project.video_url
+                project_dict['image'] = get_project.image.url if get_project.image else None
+                project_dict['date'] = get_project.date
+
+                context = {
+                    "status": 200,
+                    "project":project_dict
+                }
+            else:
+                context = {
+                    "status": 500,
+                    "error": "This project is not exist"
+                }
+        else:
+            context = {
+                "status": 500,
+                "error": "Required parameter missing"
+            }
+
+    else:
+        context = {
+            "status": 500,
+            "error": "Invalid requests"
+        }
+                   
+    return JsonResponse(context, safe=True)
+
 class BlogView(View):
     def __init__(self):
         self.obj = Blog.objects.all().order_by("-date")
@@ -208,7 +254,42 @@ class BlogView(View):
             "blogs":blogs
         }
         return JsonResponse(context, safe=True)
-   
+
+@csrf_exempt
+def blog_details(request):
+    if request.method == 'POST':
+        blog = request.POST.get('blog', None)
+        if blog is not None:
+            split_blog = blog.split('@') # ['12 unique examples of portfolio websites12', '34', '2023-12-10'] ==> [title,id,date]
+            blog_id = split_blog[1] 
+
+            get_blog = Blog.objects.filter(id=blog_id)
+            if get_blog.exists():
+                get_blog = list(get_blog.values())
+
+                context = {
+                    "status": 200,
+                    "blog":get_blog
+                }
+            else:
+                context = {
+                    "status": 500,
+                    "error": "This blog is not exist"
+                }
+        else:
+            context = {
+                "status": 500,
+                "error": "Required parameter missing"
+            }
+
+    else:
+        context = {
+            "status": 500,
+            "error": "Invalid requests"
+        }
+                   
+    return JsonResponse(context, safe=True)
+
 
 class ContactView(View):
     def __init__(self):
