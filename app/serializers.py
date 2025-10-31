@@ -128,6 +128,7 @@ class ContactInfoSerializer(serializers.ModelSerializer):
 
 class ContactSerializer(serializers.ModelSerializer):
     contacts = ContactInfoSerializer(source="contact", many=True, read_only=True)
+    title = ContactInfoSerializer(source="page_title", many=True, read_only=True)
 
     class Meta:
         model = Contact
