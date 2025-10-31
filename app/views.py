@@ -7,6 +7,20 @@ from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 
 from .models import *
+from app.serializers import AllInfoSerializer
+
+class AllInfoJsonView(View):
+    def get(self, request):
+        data = {
+            "sidebar": SideBar.objects.first(),
+            "home": Home.objects.first(),
+            "about": About.objects.first(),
+            "contact": Contact.objects.first(),
+        }
+        serializer = AllInfoSerializer(data)
+        if serializer.is_valid():
+            return JsonResponse(serializer.data, safe=True)
+        return JsonResponse(serializer.errors, status=400)
 
 @csrf_exempt
 def visitor_view(request):
@@ -321,37 +335,99 @@ def send_contact_mail(name,user_email,subject,message):
     <!DOCTYPE html>
     <html lang="en">
     <head>
-        <meta charset="UTF-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>[subject]</title>
-        <style>
-            .applicationBox{
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>{subject}</title>
+    <style>
+        body {{
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }}
+        .container {{
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            padding: 20px;
+        }}
+        .header {{
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }}
+        .header h1 {{
+            margin: 0;
+            font-size: 24px;
+            color: #4A90E2;
+        }}
+        .content {{
+            margin-top: 20px;
+            font-size: 16px;
+            line-height: 1.6;
+        }}
+        .applicationBox {{
             width: 100%;
-            height: 700px;
-            background-color: aliceblue;
-            font-size: 20px;
-            padding: 10px;
-            border: none;
-            outline: none;
-        }
-        .applicationBox:focus{
-            border: none;
-        }
-        </style>
+            height: auto;
+            min-height: 200px;
+            background-color: #e8f0fe;
+            border-radius: 4px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            padding: 15px;
+            border: 1px solid #cfd8dc;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+            white-space: pre-wrap;
+            overflow-wrap: break-word;
+            margin-top: 20px;
+        }}
+        .footer {{
+            margin-top: 30px;
+            font-size: 14px;
+            color: #777;
+            text-align: center;
+        }}
+        /* Optional: Responsive adjustments */
+        @media (max-width: 600px) {{
+            body {{
+                padding: 10px;
+            }}
+            .container {{
+                padding: 15px;
+            }}
+        }}
+    </style>
     </head>
     <body>
-        <textarea name="application" class="applicationBox" readonly>
-        ##############################
-        from email - [email]
-        name: [name]
-        ###############################
-        
-        [message]
-        </textarea>
+    <div class="container">
+        <div class="header">
+            <h1>{subject}</h1>
+        </div>
+        <div class="content">
+            <p><strong>From email:</strong> {email}</p>
+            <p><strong>Name:</strong> {name}</p>
+            <div class="applicationBox" readonly>
+    {message}
+            </div>
+        </div>
+        <div class="footer">
+            &copy; {year} By Tanjim Abubokor. All rights reserved.
+        </div>
+    </div>
     </body>
     </html>
-    """.replace("[subject]",subject).replace("[message]",message).replace("[name]",name).replace("[email]",user_email)
+    """.format(
+        subject=subject,
+        email=user_email,
+        name=name,
+        message=message,
+        year=2023
+    )
+
     email_to = "abubokortanjim@gmail.com"
     email_from = settings.EMAIL_HOST_USER
     recipient_list = [email_to, ]
