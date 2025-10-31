@@ -33,7 +33,7 @@ class SideBarSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SideBar
-        fields = ["name", "textLogo", "profile", "logo", "copyright", "menus", "social"]
+        fields = ["name", "textLogo", "profile", "logo", "copyright_text", "menus", "social"]
 
     def get_profile(self, obj):
         return obj.profile.url if obj.profile else None
@@ -44,6 +44,7 @@ class SideBarSerializer(serializers.ModelSerializer):
     def get_textLogo(self, obj):
         parts = obj.name.split()
         return f"{parts[0][0]}.{parts[-1]}" if len(parts) > 1 else obj.name
+
 
 # --- Home Serializer ---
 class HomeSerializer(serializers.ModelSerializer):
