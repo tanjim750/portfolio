@@ -148,6 +148,7 @@ class About(models.Model):
     page_title = models.CharField(max_length=100000,default="Tanjim Abubokor")
     title = models.TextField(default=default_title)
     description = models.TextField(default=default_text)
+    banner = models.JSONField(default=[])
     contact_info = models.ManyToManyField(ContactInfo)
     skill = models.ManyToManyField(Skills)
     buttons = models.ManyToManyField(Button, blank=True,null=True)

@@ -1,12 +1,17 @@
 from rest_framework import serializers
 
 from .models import (
-    SideBar, Menus, SocialLinks,
+    Button, SideBar, Menus, SocialLinks,
     Home, About, Skills,
     Service, IntroVideo,
     Project, Testimonial,
     Blog, Contact, ContactInfo
 )
+
+class ButtonSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Button
+        fields = ["text", "url"]
 
 # --- Sidebar Serializers ---
 class MenuSerializer(serializers.ModelSerializer):
@@ -52,6 +57,7 @@ class SideBarSerializer(serializers.ModelSerializer):
 # --- Home Serializer ---
 class HomeSerializer(serializers.ModelSerializer):
     heroImage = serializers.SerializerMethodField()
+    buttons = ButtonSerializer(many=True, read_only=True)
 
     class Meta:
         model = Home
@@ -68,13 +74,16 @@ class SkillsSerializer(serializers.ModelSerializer):
 
 class AboutSerializer(serializers.ModelSerializer):
     skills = SkillsSerializer(many=True, read_only=True, source="skill")
+    buttons = ButtonSerializer(many=True, read_only=True)
 
     class Meta:
         model = About
-        fields = ["title", "description", "buttons", "skills"]
+        fields = ["title", "description", "buttons", "skills", "banner"]
 
 # --- Services ---
 class ServiceSerializer(serializers.ModelSerializer):
+    buttons = ButtonSerializer(many=True, read_only=True)
+
     class Meta:
         model = Service
         fields = ["page_title", "title", "description", "buttons"]
