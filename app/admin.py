@@ -17,6 +17,7 @@ admin.site.register(Testimonial)
 admin.site.register(Blog)
 admin.site.register(Contact)
 admin.site.register(AllInfoJson)
+admin.site.register(Button)
 
 
 
