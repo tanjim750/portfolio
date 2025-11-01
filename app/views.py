@@ -18,7 +18,9 @@ class AllInfoJsonView(View):
             "contact": Contact.objects.first(),
         }
         serializer = AllInfoSerializer(data)
-        return JsonResponse(serializer.data, safe=True)
+        json = AllInfoJson.objects.last()
+        context =  json.info if json else serializer.data
+        return JsonResponse(context, safe=True)
 
 @csrf_exempt
 def visitor_view(request):
