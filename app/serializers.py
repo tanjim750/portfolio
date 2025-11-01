@@ -55,7 +55,7 @@ class HomeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Home
-        fields = ["title", "subtitle", "heroImage", "btn1_text", "btn1_link", "btn2_text", "btn2_link"]
+        fields = ["title", "subtitle", "heroImage", "buttons"]
 
     def get_heroImage(self, obj):
         return obj.image.url if obj.image else None
@@ -71,13 +71,13 @@ class AboutSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = About
-        fields = ["title", "description", "btn_text", "btn_link", "skills"]
+        fields = ["title", "description", "buttons", "skills"]
 
 # --- Services ---
 class ServiceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Service
-        fields = ["page_title", "title", "description", "btn", "btn_link"]
+        fields = ["page_title", "title", "description", "buttons"]
 
 class IntroVideoSerializer(serializers.ModelSerializer):
     thumbnail = serializers.SerializerMethodField()

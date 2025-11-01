@@ -25,6 +25,13 @@ class UploadImage(models.Model):
     def __str__(self):
         return self.name
 
+class Button(models.Model):
+    text = models.CharField(max_length=1000)
+    url = models.TextField()
+
+    def __str__(self):
+        return self.text
+    
 #contact Section starts
 class ContactInfo(models.Model):
     media = models.CharField(max_length=1000)
@@ -101,11 +108,8 @@ class Home(models.Model):
     title = models.TextField(default=default_title)
     subtitle = models.TextField(default=default_subtitle)
     image = models.ImageField(upload_to="images")
-    btn1_text = models.CharField(max_length=500, default= "Got a Project")
-    btn1_link = models.TextField(default="project.html")
-    btn2_text = models.CharField(max_length=1000, default="Let's talk")
-    btn2_link = models.TextField(default="contact.html")
     contact_info = models.ManyToManyField(ContactInfo)
+    buttons = models.ManyToManyField(Button, blank=True,null=True)
 
     def __str__(self):
         return str(self.id)
@@ -144,10 +148,9 @@ class About(models.Model):
     page_title = models.CharField(max_length=100000,default="Tanjim Abubokor")
     title = models.TextField(default=default_title)
     description = models.TextField(default=default_text)
-    btn_text = models.CharField(max_length=500, default= "Got a Project")
-    btn_link = models.TextField(default="project.html")
     contact_info = models.ManyToManyField(ContactInfo)
     skill = models.ManyToManyField(Skills)
+    buttons = models.ManyToManyField(Button, blank=True,null=True)
 
     def __str__(self):
         return str(self.id)
@@ -167,8 +170,7 @@ class Service(models.Model):
     page_title = models.CharField(max_length=100000,default="Tanjim Abubokor")
     title = models.CharField(max_length=10000)
     description = models.TextField()
-    btn = models.CharField(max_length=1000)
-    btn_link = models.URLField()
+    buttons = models.ManyToManyField(Button, blank=True,null=True)
 
     def __str__(self):
         return self.title
